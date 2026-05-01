@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  billing-service:
+    build: .
+    ports:
+      - "5000:8080" # Map port 8080 in the container to port 5000 on the host
+    environment:
+      - ConnectionStrings__BillingDb=Host=db;Database=billing;Username=postgres;Password=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: billing
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - billing-data:/var/lib/postgresql/data
+
+volumes:
+  billing-data:
