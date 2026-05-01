@@ -56,7 +56,7 @@ namespace BillingService.Controllers
 
             bill.Status = "VOID";
             await _repository.UpdateBillAsync(bill);
-            return NoContent();
+            return Ok();
         }
     }
 }
