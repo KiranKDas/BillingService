@@ -52,7 +52,23 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<BillingDbContext>();
-    context.Database.Migrate();
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    var maxRetries = 5;
+    for (int i = 0; i < maxRetries; i++)
+    {
+        try
+        {
+            context.Database.Migrate();
+            break; // Success, break out of the loop
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Database is not ready yet. Retrying in 5 seconds... (Attempt {Attempt} of {MaxRetries})", i + 1, maxRetries);
+            if (i == maxRetries - 1) throw; // Rethrow if we've exhausted all retries
+            System.Threading.Thread.Sleep(5000);
+        }
+    }
 }
 
 app.Run();

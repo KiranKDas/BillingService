@@ -1,0 +1,80 @@
+---
+# 1. PostgreSQL Database Deployment & Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "Password123!"
+        - name: POSTGRES_DB
+          value: "billingdb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+
+---
+# 2. Billing Service Deployment & Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billing
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      containers:
+      - name: billing-service
+        image: billing-service:local
+        imagePullPolicy: Never # Important: Tells minikube to use the local image we just built
+        ports:
+        - containerPort: 8080
+        env:
+        # Overrides the appsettings.json connection string
+        - name: ConnectionStrings__BillingDb
+          value: "Host=postgres;Database=billingdb;Username=postgres;Password=Password123!"
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-service
+spec:
+  type: NodePort
+  selector:
+    app: billing
+  ports:
+  - port: 80
+    targetPort: 8080
