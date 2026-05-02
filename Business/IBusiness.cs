@@ -11,5 +11,8 @@ namespace BillingService.Business
         Task<Bill> GetBillByIdAsync(int billId);
         Task CreateBillAsync(Bill bill);
         Task UpdateBillAsync(Bill bill);
+
+        Task CancelBillAsync(int billId, string cancellationPolicy);
+
     }
 }

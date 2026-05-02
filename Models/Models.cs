@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 
 namespace BillingService.Models
 {
@@ -8,15 +8,7 @@ namespace BillingService.Models
         public int PatientId { get; set; }
         public int AppointmentId { get; set; }
         public decimal Amount { get; set; }
-        public string Status { get; set; } // OPEN, PAID, VOID, REFUND
+        public required string Status { get; set; } 
         public DateTime CreatedAt { get; set; }
-    }
-
-    public class CreateBillDto
-    {
-        public int PatientId { get; set; }
-        public int AppointmentId { get; set; }
-        public decimal Amount { get; set; }
-        public string Status { get; set; }
     }
 }
