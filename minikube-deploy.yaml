@@ -66,6 +66,8 @@ spec:
           value: "Host=postgres;Database=billingdb;Username=postgres;Password=Password123!"
         - name: ASPNETCORE_ENVIRONMENT
           value: "Development"
+        - name: ASPNETCORE_URLS
+          value: "http://0.0.0.0:8080"
 ---
 apiVersion: v1
 kind: Service

@@ -28,12 +28,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
 {
     options.AddOperationTransformer<UserTypeHeaderFilter>();
+
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Servers = new List<Microsoft.OpenApi.Models.OpenApiServer> { 
+            new Microsoft.OpenApi.Models.OpenApiServer { Url = "/" } 
+        };
+        return Task.CompletedTask;
+    });
 });
 
 builder.Services.AddSingleton<BillingService.Monitoring.BillingMetrics>();
 builder.Services.AddOpenTelemetry()
     .WithMetrics(metrics =>
     {
+        // Add built-in ASP.NET Core and HTTP metrics
+        metrics.AddMeter("Microsoft.AspNetCore.Hosting");
+        metrics.AddMeter("Microsoft.AspNetCore.Server.Kestrel");
+        metrics.AddMeter("System.Net.Http");
+        
+        // Add your custom metrics
         metrics.AddMeter(BillingService.Monitoring.BillingMetrics.MeterName);
         metrics.AddPrometheusExporter();
     });
